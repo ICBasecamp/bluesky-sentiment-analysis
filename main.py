@@ -7,6 +7,14 @@ from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from scipy.special import softmax
 
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+nltk.download('punkt')
+nltk.download('punkt_tab')
+nltk.download('stopwords')
+
 async def fetch_bluesky(query: str, limit: int = 10):
     url = f'https://bsky.app/search?q={query}'
     posts = []
@@ -39,6 +47,15 @@ async def fetch_bluesky(query: str, limit: int = 10):
     df = pd.DataFrame(posts)
     return df
 
+def preprocess_text(text):
+    tokens = word_tokenize(text)
+    stop_words = set(stopwords.words('english'))
+    tokens = [word for word in tokens if word.lower() not in stop_words]
+
+    preprocessed_text = ' '.join(tokens)
+
+    return preprocessed_text
+
 async def main():
     query = input("Enter a BlueSky search query: ")
     limit = 25
@@ -48,7 +65,8 @@ async def main():
     model = AutoModelForSequenceClassification.from_pretrained("cardiffnlp/twitter-roberta-base-sentiment")
 
     def calculate_hf_scores(text):
-        encoded_text = tokenizer(text, return_tensors='pt')
+        preprocessed_text = preprocess_text(text)
+        encoded_text = tokenizer(preprocessed_text, return_tensors='pt')
         output = model(**encoded_text)
 
         scores = output[0][0].detach().numpy()
@@ -79,6 +97,9 @@ async def main():
     plt.xlabel('Positive Sentiment')
     plt.ylabel('Negative Sentiment')
     plt.title(f'BlueSky Sentiment Data on {query}, using HF transformers')
+    plt.xlim(0, 1)
+    plt.ylim(0, 1)
+
     plt.show()
 
 if __name__ == '__main__':
