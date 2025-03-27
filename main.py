@@ -2,7 +2,6 @@ from bs4 import BeautifulSoup
 from playwright.async_api import async_playwright
 import pandas as pd
 
-import matplotlib.pyplot as plt
 from transformers import AutoTokenizer
 from transformers import AutoModelForSequenceClassification
 from scipy.special import softmax
@@ -10,6 +9,9 @@ from scipy.special import softmax
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+
+import plotext as plt
+
 
 nltk.download('punkt')
 nltk.download('punkt_tab')
@@ -92,6 +94,12 @@ async def main():
     results_df = pd.DataFrame(result).T
     results_df = results_df.merge(df, left_index=True, right_index=True)
     print(results_df)
+
+    plt.title(f"Sentiment Analysis of {query} on BlueSky")
+    plt.xlabel("Positive Sentiment")
+    plt.ylabel("Negative Sentiment")
+    plt.plot(results_df['pos'], results_df['neg'])
+    plt.show()
 
 if __name__ == '__main__':
     import asyncio
