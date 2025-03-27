@@ -91,16 +91,7 @@ async def main():
 
     results_df = pd.DataFrame(result).T
     results_df = results_df.merge(df, left_index=True, right_index=True)
-
-    plt.figure(figsize=(8, 6))
-    plt.scatter(results_df['pos'], results_df['neg'])
-    plt.xlabel('Positive Sentiment')
-    plt.ylabel('Negative Sentiment')
-    plt.title(f'BlueSky Sentiment Data on {query}, using HF transformers')
-    plt.xlim(0, 1)
-    plt.ylim(0, 1)
-
-    plt.show()
+    print(results_df)
 
 if __name__ == '__main__':
     import asyncio
